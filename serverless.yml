@@ -42,6 +42,13 @@ functions:
           path: tips
           method: get
           cors: true
+  subscribe:
+    handler: app/addSubscriber.addSubscriber
+    events:
+      - http:
+          path: subscribe
+          method: post
+          cors: true
 
 resources:
   Resources:
