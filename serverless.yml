@@ -1,0 +1,58 @@
+service: programming-tips
+frameworkVersion: '3'
+
+custom:
+  tableName: 'users-table-${sls:stage}'
+  region: ${self:provider.region}
+  bucket: programming-tips
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  memorySize: 128
+  timeout: 10
+  region: us-east-1
+  profile: serverless-admin
+  stage: dev
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action: s3:getObject
+          Resource: arn:aws:s3:::${self:custom.bucket}/*
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - Fn::GetAtt: [ UsersTable, Arn ]
+  environment:
+    USERS_TABLE: ${self:custom.tableName}
+    REGION: ${self:provider.region}
+
+functions:
+  tips:
+    handler: app/getTips.getTips
+    events:
+      - http:
+          path: tips
+          method: get
+          cors: true
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:custom.tableName}
