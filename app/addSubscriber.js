@@ -6,7 +6,8 @@ const crypto = require('crypto')
 const USERS_TABLE = process.env.USERS_TABLE
 const dynamoDb = new AWS.DynamoDB.DocumentClient()
 
-module.exports.addSubscriber = async ({ body }) => {
+module.exports.addSubscriber = async (event) => {
+  const body = JSON.parse(event.body)
   if (!body.email) return serverError('Invalid email data')
   const params = {
     TableName: USERS_TABLE,
