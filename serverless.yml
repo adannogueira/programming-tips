@@ -1,10 +1,7 @@
 service: programming-tips
 frameworkVersion: '3'
 
-custom:
-  tableName: 'users-table-${sls:stage}'
-  region: ${self:provider.region}
-  bucket: programming-tips
+useDotenv: true
 
 provider:
   name: aws
@@ -19,7 +16,7 @@ provider:
       statements:
         - Effect: Allow
           Action: s3:getObject
-          Resource: arn:aws:s3:::${self:custom.bucket}/*
+          Resource: arn:aws:s3:::${env:BUCKET}/*
         - Effect: Allow
           Action:
             - dynamodb:Query
@@ -34,8 +31,10 @@ provider:
           Action: SNS:Publish
           Resource: !Ref TipMessages
   environment:
-    USERS_TABLE: ${self:custom.tableName}
-    REGION: ${self:provider.region}
+    USERS_TABLE: ${env:USERS_TABLE}
+    REGION: ${env:REGION}
+    SNS_TOPIC_ARN: ${env:SNS_TOPIC_ARN}
+    SUBSCRIBE_ENDPOINT: ${env:SUBSCRIBE_ENDPOINT}
 
 functions:
   tips:
@@ -52,6 +51,13 @@ functions:
           path: subscribe
           method: post
           cors: true
+  staticMailer:
+    handler: app/staticMailer.staticMailer
+    events:
+      - http:
+          path: static-mailer
+          method: post
+          cors: true
 
 resources:
   Resources:
@@ -65,7 +71,7 @@ resources:
           - AttributeName: userId
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:custom.tableName}
+        TableName: ${env:USERS_TABLE}
     TipMessages:
       Type: AWS::SNS::Topic
       Properties:
@@ -82,3 +88,6 @@ resources:
             minDelayTarget: 30
             maxDelayTarget: 600
             backoffFunction: exponential
+
+plugins:
+  - serverless-offline
