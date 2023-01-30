@@ -77,7 +77,7 @@ resources:
         Protocol: email
         Endpoint: example@email.com
         DeliveryPolicy:
-          healthRetryPolicy:
+          healthyRetryPolicy:
             numRetries: 20
             minDelayTarget: 30
             maxDelayTarget: 600
