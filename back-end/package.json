@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
+    "@sendgrid/mail": "^7.7.0",
     "aws-sdk": "^2.1304.0",
     "axios": "^1.2.6",
     "dotenv": "^16.0.3",
