@@ -30,6 +30,9 @@ provider:
             - dynamodb:DeleteItem
           Resource:
             - Fn::GetAtt: [ UsersTable, Arn ]
+        - Effect: Allow
+          Action: SNS:Publish
+          Resource: !Ref TipMessages
   environment:
     USERS_TABLE: ${self:custom.tableName}
     REGION: ${self:provider.region}
@@ -63,3 +66,19 @@ resources:
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:custom.tableName}
+    TipMessages:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: tip-messages-${self:provider.stage}
+    TipMessagesSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        TopicArn: !Ref TipMessages
+        Protocol: email
+        Endpoint: example@email.com
+        DeliveryPolicy:
+          healthRetryPolicy:
+            numRetries: 20
+            minDelayTarget: 30
+            maxDelayTarget: 600
+            backoffFunction: exponential
