@@ -69,6 +69,7 @@ functions:
           path: send-email
           method: post
           cors: true
+      - schedule: cron(0 13 * * ? *)
 
 resources:
   Resources:
