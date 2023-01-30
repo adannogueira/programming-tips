@@ -4,7 +4,7 @@ const { ok } = require('./helpers/ok')
 AWS.config.update({ region: process.env.REGION })
 const s3 = new AWS.S3()
 
-module.exports.getTips = async (event) => {
+module.exports.getTips = async () => {
   const tips = await s3.getObject({
     Bucket: 'programming-tips',
     Key: 'tips.json'
